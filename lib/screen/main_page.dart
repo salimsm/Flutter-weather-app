@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/constant.dart';
+import '../services/weather_service.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -10,7 +11,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  bool _loading = true;
+  bool _loading = false;
   String cityName = "None";
   String date = "Date";
   String time = "Time";
@@ -19,7 +20,7 @@ class _MainPageState extends State<MainPage> {
   double temp = 0.0, minTemp = 0.0, maxTemp = 0.0, feelsLike = 0.0;
   String description = "---", main = "---";
   int humidity = 0, pressure = 0;
-
+  double lat = 0,lon = 0;
   TextEditingController cityTextField = TextEditingController();
 
   @override
@@ -63,7 +64,16 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ),
                             onTap: () {
-                              //TODO implement search button click functionality
+                              print("tapped");
+                              FocusScope.of(context).unfocus();
+
+                              if (cityTextField.text.isEmpty) {
+                                showSnackBar("Please, Enter City..");
+                              } else {
+                                _loading = true;
+                                updateUi();
+                                setState(() {});
+                              }
                             },
                           ),
                         ),
@@ -139,11 +149,12 @@ class _MainPageState extends State<MainPage> {
                       getListViewContainer('Min.', '$minTemp°C'),
                       getListViewContainer('Max.', '$maxTemp°C'),
                       getListViewContainer('Humidity', '$humidity %'),
-                      getListViewContainer('Pressure', "$pressure"),
-                      getListViewContainer('Feels alike', "$feelsLike"),
+                      getListViewContainer('Pressure', "$pressure\n hPa"),
+                      getListViewContainer('Feels alike', "$feelsLike°C"),
                     ],
                   ),
                 ),
+
               ],
             ),
           ),
@@ -168,6 +179,7 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+  // horizontal scrollable listview component (container)
   Widget getListViewContainer(String name, dynamic value) {
     return Container(
       margin: const EdgeInsets.all(10),
@@ -190,6 +202,7 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+ 
   void getDateTime() {
     final dateTime = DateTime.now();
     String month = getMonthName(dateTime.month);
@@ -227,4 +240,53 @@ class _MainPageState extends State<MainPage> {
         return "Error";
     }
   }
+
+
+  void showSnackBar(String msg) {
+    var height = MediaQuery.of(context).size.height;
+    final snackBar = SnackBar(
+      content: Text(
+        msg,
+        style: TextStyle(fontSize: 17),
+      ),
+      margin: EdgeInsets.only(bottom: height - 150, left: 10, right: 10),
+      behavior: SnackBarBehavior.floating,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+  void updateUi() async {
+    final result = await WeatherService.getWeatherDetails(
+        cityTextField.text.toString().trim());
+    if (result == false) {
+      _loading = false;
+
+      showSnackBar("Please, check the city name..");
+      setState(() {});
+    } else {
+      setState(() {
+        _loading = false;
+        print("----------------------${result.main!.temp!}");
+        print(result.coord.lat);
+        temp = result.main!.temp!;
+        minTemp = result.main!.tempMin!;
+        maxTemp = result.main!.tempMax!;
+        cityName = result.name!;
+        humidity = result.main.humidity;
+        pressure = result.main.pressure;
+        feelsLike = result.main.feelsLike;
+
+        description = result.weather[0].description;
+        main = result.weather[0].main;
+        icon = "http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png";
+        print("value of icon ..................");
+        print(icon);
+        getDateTime();
+
+        lat =result.coord.lat;
+        lon =result.coord.lon;
+      });
+    }
+  }
+
+
 }
