@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/constant.dart';
@@ -20,7 +21,10 @@ class _MainPageState extends State<MainPage> {
   double temp = 0.0, minTemp = 0.0, maxTemp = 0.0, feelsLike = 0.0;
   String description = "---", main = "---";
   int humidity = 0, pressure = 0;
-  double lat = 0,lon = 0;
+  double lat = 0, lon = 0;
+  int visibility = 0;
+  double? speed=0.0,gust=0.0;
+  int? degree =0;
   TextEditingController cityTextField = TextEditingController();
 
   @override
@@ -149,8 +153,49 @@ class _MainPageState extends State<MainPage> {
                       getListViewContainer('Min.', '$minTemp°C'),
                       getListViewContainer('Max.', '$maxTemp°C'),
                       getListViewContainer('Humidity', '$humidity %'),
-                      getListViewContainer('Pressure', "$pressure\n hPa"),
+                      getListViewContainer('Pressure', "$pressure hPa"),
                       getListViewContainer('Feels alike', "$feelsLike°C"),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                const Text(
+                  "More Info:",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.all(8),
+                  decoration: moreInfoBD,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Latitude: ${lat.toString()}",style: moreInfoTS,),
+                      SizedBox(height: 5,),
+                      Text("Longitude: ${lon.toString()}",style: moreInfoTS,),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.all(8),
+                  decoration: moreInfoBD,
+                  child: Text("Visibility: ${visibility.toString()} m",style: moreInfoTS,),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 8),
+                  padding: EdgeInsets.all(8),
+                  decoration: moreInfoBD,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Wind:",style: moreInfoTS.copyWith(fontWeight: FontWeight.bold),),
+                      Divider(color: Colors.blueGrey,),
+                      Text("Speed:    ${speed.toString()} m/sec",style: moreInfoTS,),
+                      Text("Degree:  ${degree.toString() }°",style: moreInfoTS,),
+                      Text("Gust:      ${gust.toString()} m/sec",style: moreInfoTS,),
                     ],
                   ),
                 ),
@@ -202,7 +247,24 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
- 
+  Widget getContainer(String name, dynamic value) {
+    return Container(
+      height: 65,
+      margin: const EdgeInsets.all(10),
+      width: double.maxFinite,
+      decoration: listViewContainerBoxDecoration.copyWith(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          getText(name, 17),
+          getText(value.toString(), 26, bold: true),
+        ],
+      ),
+    );
+  }
+
   void getDateTime() {
     final dateTime = DateTime.now();
     String month = getMonthName(dateTime.month);
@@ -241,7 +303,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-
   void showSnackBar(String msg) {
     var height = MediaQuery.of(context).size.height;
     final snackBar = SnackBar(
@@ -254,6 +315,7 @@ class _MainPageState extends State<MainPage> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
   void updateUi() async {
     final result = await WeatherService.getWeatherDetails(
         cityTextField.text.toString().trim());
@@ -277,16 +339,18 @@ class _MainPageState extends State<MainPage> {
 
         description = result.weather[0].description;
         main = result.weather[0].main;
-        icon = "http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png";
+        icon =
+            "http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png";
         print("value of icon ..................");
         print(icon);
         getDateTime();
-
-        lat =result.coord.lat;
-        lon =result.coord.lon;
+        visibility = result.visibility;
+        lat = result.coord.lat;
+        lon = result.coord.lon;
+        speed= result.wind.speed;
+        degree = result.wind.deg;
+        gust= result.wind.gust;
       });
     }
   }
-
-
 }

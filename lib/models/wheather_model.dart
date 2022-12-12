@@ -9,20 +9,28 @@ WeatherModel weatherModelFromJson(String str) => WeatherModel.fromJson(json.deco
 class WeatherModel {
   WeatherModel({
     this.coord,
+    this.visibility,
     required this.weather,
     this.main,
     this.name,
+    this.wind,
   });
 Coord? coord;
-  List<Weather> weather;
-  Main? main;
-  String? name;
+int? visibility;
+List<Weather> weather;
 
+  Main? main;
+
+  String? name;
+Wind? wind;
   factory WeatherModel.fromJson(Map<String, dynamic> json) => WeatherModel(
     coord: Coord.fromJson(json["coord"]),
+    visibility: json['visibility'],
     weather: List<Weather>.from(json["weather"].map((x) => Weather.fromJson(x))),
     main: Main.fromJson(json["main"]),
     name: json["name"],
+    wind: Wind.fromJson(json["wind"]),
+
   );
 
 }
@@ -96,6 +104,26 @@ class Coord {
   factory Coord.fromJson(Map<String, dynamic> json) => Coord(
     lon: json["lon"].toDouble(),
     lat: json["lat"].toDouble(),
+  );
+
+}
+
+
+class Wind {
+  Wind({
+    this.speed,
+    this.deg,
+    this.gust,
+  });
+
+  double? speed;
+  int? deg;
+  double? gust;
+
+  factory Wind.fromJson(Map<String, dynamic> json) => Wind(
+    speed: json["speed"].toDouble(),
+    deg: json["deg"],
+    gust: json["gust"].toDouble(),
   );
 
 }
