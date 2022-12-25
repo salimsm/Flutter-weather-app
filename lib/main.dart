@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_weather_app/screen/splash_screen.dart';
 import 'screen/main_page.dart';
 
 void main() {
@@ -17,8 +19,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
+        
       ),
-      home: MainPage(),
+      home: SplashScreen(),
     );
   }
 }

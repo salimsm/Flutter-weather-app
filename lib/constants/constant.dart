@@ -2,14 +2,7 @@ import 'package:flutter/material.dart';
 
 
 // main page background container decoration
-BoxDecoration mainScreenDecoration = BoxDecoration(
-  gradient: LinearGradient(colors: [
-    Colors.lightBlue.shade100,
-    Colors.lightBlue.shade200,
-    Colors.lightBlue.shade400,
-    Colors.lightBlue.shade500
-  ], begin: Alignment.topCenter, end: Alignment.bottomRight),
-);
+//BoxDecoration mainScreenDecoration =
 // text field (search) text style
 const TextStyle textFieldStyle = TextStyle(fontSize: 18);
 
@@ -19,18 +12,17 @@ BoxDecoration listViewContainerBoxDecoration = BoxDecoration(
   borderRadius: BorderRadius.circular(10),
   boxShadow: const [
     BoxShadow(
-      color: Colors.black26,
-      spreadRadius: 2,
-      blurRadius: 3,
+      color: Color(0xffeef1f5),
+      spreadRadius: 10,
+      // blurRadius: 3,
       offset: Offset(5, 5),
     ),
   ],
 );
 
 // more info. container text style
-TextStyle moreInfoTS= TextStyle(fontSize: 17);
+TextStyle moreInfoTS= TextStyle(fontSize: 17,fontFamily: 'Laila',);
 
 BoxDecoration moreInfoBD=BoxDecoration(
-color: Colors.lightBlue.shade100,
 borderRadius: BorderRadius.circular(5)
 );

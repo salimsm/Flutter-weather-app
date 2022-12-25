@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/constant.dart';
 import '../services/weather_service.dart';
 
@@ -18,24 +18,49 @@ class _MainPageState extends State<MainPage> {
   String time = "Time";
   String? icon;
 
-  double temp = 0.0, minTemp = 0.0, maxTemp = 0.0, feelsLike = 0.0;
-  String description = "---", main = "---";
-  int humidity = 0, pressure = 0;
-  double lat = 0, lon = 0;
+  double temp = 0.0,
+      minTemp = 0.0,
+      maxTemp = 0.0,
+      feelsLike = 0.0;
+  String description = "---",
+      main = "---";
+  int humidity = 0,
+      pressure = 0;
+  double lat = 0,
+      lon = 0;
   int visibility = 0;
-  double? speed=0.0,gust=0.0;
-  int? degree =0;
+  double? speed = 0.0;
+  int? degree = 0;
   TextEditingController cityTextField = TextEditingController();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getStoredValue();
+
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    final screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return SafeArea(
       child: Scaffold(
         body: Container(
-          decoration: mainScreenDecoration,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [
+              Color(0xffe7f0fd),
+            Color(0xffaccbee),
+            ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: ListView(
@@ -57,11 +82,10 @@ class _MainPageState extends State<MainPage> {
                           hintStyle: textFieldStyle,
                           prefixIcon: const Icon(
                             Icons.cloud,
-                            color: Colors.blue,
-                          ),
+                             color:Color(0xffaccbee),                          ),
                           suffixIcon: GestureDetector(
                             child: Container(
-                              color: Colors.blue.shade300,
+                              color: Color(0xffaccbee),
                               child: const Icon(
                                 Icons.search,
                                 color: Colors.black,
@@ -87,11 +111,11 @@ class _MainPageState extends State<MainPage> {
                 ),
                 (_loading)
                     ? Center(
-                        child: Container(
-                            padding: const EdgeInsets.all(5),
-                            height: 40,
-                            width: 40,
-                            child: const CircularProgressIndicator()))
+                    child: Container(
+                        padding: const EdgeInsets.all(5),
+                        height: 40,
+                        width: 40,
+                        child: const CircularProgressIndicator()))
                     : SizedBox(height: screenHeight * 0.03),
                 Row(
                   children: [
@@ -128,10 +152,10 @@ class _MainPageState extends State<MainPage> {
                   child: (icon == null)
                       ? Container()
                       : Image.network(
-                          icon!,
-                          height: 90,
-                          width: 90,
-                        ),
+                    icon!,
+                    height: 90,
+                    width: 90,
+                  ),
                 ),
                 Container(
                     alignment: Alignment.center,
@@ -168,34 +192,38 @@ class _MainPageState extends State<MainPage> {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8),
                   padding: EdgeInsets.all(8),
-                  decoration: moreInfoBD,
+                  decoration: moreInfoBD.copyWith(color: Colors.white.withOpacity(0.6)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Latitude: ${lat.toString()}",style: moreInfoTS,),
+                      Text("Latitude:       ${lat.toString()}", style: moreInfoTS,),
                       SizedBox(height: 5,),
-                      Text("Longitude: ${lon.toString()}",style: moreInfoTS,),
+                      Text("Longitude:    ${lon.toString()}", style: moreInfoTS,),
                     ],
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8),
                   padding: EdgeInsets.all(8),
-                  decoration: moreInfoBD,
-                  child: Text("Visibility: ${visibility.toString()} m",style: moreInfoTS,),
+                  decoration: moreInfoBD.copyWith(color: Colors.white.withOpacity(0.6)),
+                  child: Text("Visibility:       ${visibility.toString()} m",
+                    style: moreInfoTS,),
                 ),
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 8),
                   padding: EdgeInsets.all(8),
-                  decoration: moreInfoBD,
+                  decoration: moreInfoBD.copyWith(color: Colors.white.withOpacity(0.6)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Wind:",style: moreInfoTS.copyWith(fontWeight: FontWeight.bold),),
+                      Text("Wind:", style: moreInfoTS.copyWith(
+                          fontWeight: FontWeight.bold),),
                       Divider(color: Colors.blueGrey,),
-                      Text("Speed:    ${speed.toString()} m/sec",style: moreInfoTS,),
-                      Text("Degree:  ${degree.toString() }°",style: moreInfoTS,),
-                      Text("Gust:      ${gust.toString()} m/sec",style: moreInfoTS,),
+                      Text("Speed:    ${speed.toString()} m/sec",
+                        style: moreInfoTS,),
+                      Text(
+                        "Degree:  ${degree.toString() }°", style: moreInfoTS,),
+
                     ],
                   ),
                 ),
@@ -229,7 +257,10 @@ class _MainPageState extends State<MainPage> {
     return Container(
       margin: const EdgeInsets.all(10),
       width: 125,
-      decoration: listViewContainerBoxDecoration,
+      decoration:BoxDecoration(
+        color: Colors.white.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -304,7 +335,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   void showSnackBar(String msg) {
-    var height = MediaQuery.of(context).size.height;
+    var height = MediaQuery
+        .of(context)
+        .size
+        .height;
     final snackBar = SnackBar(
       content: Text(
         msg,
@@ -327,7 +361,7 @@ class _MainPageState extends State<MainPage> {
     } else {
       setState(() {
         _loading = false;
-        print("----------------------${result.main!.temp!}");
+        //print("----------------------${result.main!.temp!}");
         print(result.coord.lat);
         temp = result.main!.temp!;
         minTemp = result.main!.tempMin!;
@@ -340,17 +374,63 @@ class _MainPageState extends State<MainPage> {
         description = result.weather[0].description;
         main = result.weather[0].main;
         icon =
-            "http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png";
+        "http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png";
         print("value of icon ..................");
         print(icon);
         getDateTime();
         visibility = result.visibility;
         lat = result.coord.lat;
         lon = result.coord.lon;
-        speed= result.wind.speed;
+        speed = result.wind.speed;
         degree = result.wind.deg;
-        gust= result.wind.gust;
+        // storing data locally
+        storeData();
       });
     }
+  }
+
+  void storeData() async {
+    //storing locally data
+    var sharedPref = await SharedPreferences.getInstance();
+    sharedPref.setString('location', cityName);
+    sharedPref.setDouble('temp', temp);
+    sharedPref.setDouble('maxTemp', maxTemp);
+    sharedPref.setDouble('minTemp', minTemp);
+    sharedPref.setString('date', date);
+    sharedPref.setString('time', time);
+    sharedPref.setString('main', main);
+    sharedPref.setString('description', description);
+    sharedPref.setInt('humidity', humidity);
+    sharedPref.setInt('pressure', pressure);
+    sharedPref.setDouble('feelsLike', feelsLike);
+    sharedPref.setInt('visibility', visibility);
+    sharedPref.setDouble('lat', lat);
+    sharedPref.setDouble('lon', lon);
+    sharedPref.setDouble('speed', speed!);
+    sharedPref.setInt('degree', degree!);
+  }
+
+  void getStoredValue() async {
+    var sharedPref = await SharedPreferences.getInstance();
+    cityName = sharedPref.getString('location') ?? "None";
+    temp = sharedPref.getDouble('temp') ?? 0.0;
+    maxTemp = sharedPref.getDouble('maxTemp') ?? 0.0;
+    minTemp= sharedPref.getDouble('minTemp' ) ?? 0.0;
+    date=sharedPref.getString('date')?? "";
+    time= sharedPref.getString('time')?? "";
+    main =sharedPref.getString('main')?? "";
+    description=sharedPref.getString('description')?? "";
+    humidity=sharedPref.getInt('humidity' )?? 0;
+    pressure= sharedPref.getInt('pressure')?? 0;
+    feelsLike=sharedPref.getDouble('feelsLike') ?? 0.0;
+    visibility= sharedPref.getInt('visibility')?? 0;
+    lat=sharedPref.getDouble('lat' ) ?? 0.0;
+    lon= sharedPref.getDouble('lon') ?? 0.0;
+    speed=sharedPref.getDouble('speed') ?? 0.0;
+    degree= sharedPref.getInt('degree')?? 0;
+    setState(() {
+
+    });
+
   }
 }
